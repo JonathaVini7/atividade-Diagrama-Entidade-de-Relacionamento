@@ -1,0 +1,36 @@
+from graphviz import Digraph
+
+dot = Digraph('ER', format='png')
+dot.attr(rankdir='LR')
+
+entities = {
+    "User": ["id", "username", "email", "password_hash", "role_id", "created_at"],
+    "Role": ["id", "name"],
+    "Exhibit": ["id", "title", "description", "start_date", "end_date"],
+    "Panel": ["id", "title", "content", "position", "exhibit_id", "created_at"],
+    "Image": ["id", "filename", "caption", "panel_id"],
+    "Tag": ["id", "name"],
+    "Comment": ["id", "content", "created_at", "user_id", "panel_id"],
+    "Visit": ["id", "user_id", "exhibit_id", "visited_at"]
+}
+
+for e, attrs in entities.items():
+    label = f"{e}|{{" + "|".join(attrs) + "}}"
+    dot.node(e, label=label, shape="record")
+
+edges = [
+    ("User", "Role", "N:1"),
+    ("Comment", "User", "N:1"),
+    ("Comment", "Panel", "N:1"),
+    ("Visit", "User", "N:1"),
+    ("Visit", "Exhibit", "N:1"),
+    ("Panel", "Exhibit", "N:1"),
+    ("Image", "Panel", "N:1"),
+    ("Panel", "Tag", "N:M")
+]
+
+for a, b, rel in edges:
+    dot.edge(a, b, label=rel)
+
+dot.render('DER_GENERATED', cleanup=True)
+print("DER gerado!")
